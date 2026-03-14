@@ -7,6 +7,8 @@ let roomData;
 let totalAmount = 0;
 let personsCount = 0;
 let pricePerPerson = 0;
+let depositAmount = 0;
+let remainingBalance = 0;
 
 $w.onReady(function () {
     // 1. Receive data from the Lightbox context
@@ -35,9 +37,22 @@ function setupUI() {
         const value = $w("#person").value;
         if (value === "other") {
             $w("#otherPerson").show();
+            // Automatically expand guest names since a group of "other" usually implies multiple people
+            $w("#guestNames").expand();
+            $w("#guestNames").show();
         } else {
             $w("#otherPerson").hide();
             $w("#otherPerson").value = ""; // Clear if not relevant
+            
+            // Show guest names field for Pair (2) and Group (3)
+            if (value === "2" || value === "3") {
+                $w("#guestNames").expand();
+                $w("#guestNames").show();
+            } else {
+                $w("#guestNames").collapse();
+                $w("#guestNames").hide();
+                $w("#guestNames").value = ""; // Clear if solo
+            }
         }
         calculatePrice();
     });
@@ -64,6 +79,8 @@ function calculatePrice() {
     }
 
     totalAmount = pricePerPerson * personsCount;
+    depositAmount = totalAmount * 0.3; // 30% deposit
+    remainingBalance = totalAmount * 0.7; // 70% remaining balance
     
     // Optional: display total price on UI if there is a field like #totalDisplay
     // if ($w("#totalDisplay")) $w("#totalDisplay").text = `Total: €${totalAmount.toLocaleString()}`;
@@ -78,10 +95,26 @@ function parsePrice(priceStr) {
 
 async function processBooking() {
     // Basic Validation
-    if (!$w("#fName").value || !$w("#email").value || personsCount <= 0) {
-        // Show error message
-        console.error("Please fill in all required fields.");
+    let missingFields = [];
+    if (!$w("#fName").value) missingFields.push("First Name");
+    if (!$w("#lName").value) missingFields.push("Last Name");
+    if (!$w("#email").value) missingFields.push("Email");
+    if (!$w("#dob").value) missingFields.push("Date of Birth");
+    if (personsCount <= 0) missingFields.push("Number of Persons");
+
+    if (missingFields.length > 0) {
+        let errorMsg = "Please fill in all required fields: " + missingFields.join(", ");
+        if ($w("#errorSuccessMessage")) {
+            $w("#errorSuccessMessage").text = errorMsg;
+            $w("#errorSuccessMessage").show();
+        }
+        console.error(errorMsg);
         return;
+    }
+
+    if ($w("#errorSuccessMessage")) {
+        $w("#errorSuccessMessage").text = "Redirecting to payment page...";
+        $w("#errorSuccessMessage").show();
     }
 
     const bookingId = "BOOK-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
@@ -90,12 +123,16 @@ async function processBooking() {
         firstName: $w("#fName").value,
         lastName: $w("#lName").value,
         email: $w("#email").value,
+        dob: $w("#dob").value,
         phone: $w("#mobile").value,
         address: $w("#address").value,
         packageName: roomData.packageName,
         pricePerPerson: parsePrice(roomData.packagePrice),
         personsCount: personsCount,
+        guestNames: $w("#guestNames").value || "",
         totalAmount: totalAmount,
+        depositAmount: depositAmount,
+        remainingBalance: remainingBalance,
         bookingId: bookingId,
         paymentStatus: "Pending" // Initial status
     };
@@ -106,15 +143,15 @@ async function processBooking() {
 
         // 2. Call Stripe Backend
         const successUrl = `${wixLocation.baseUrl}/thankyou?bookingId=${bookingId}`;
-        const cancelUrl = wixLocation.url;
+        const cancelUrl = "https://www.padelparadiseretreats.com/";
         
         const lineItems = [{
-            name: roomData.packageName,
+            name: `${roomData.packageName} (30% Deposit)`,
             quantity: personsCount, // Number of persons
-            price: pricePerPerson   // Price per person
+            price: pricePerPerson * 0.3   // 30% of price per person
         }];
 
-        const checkout = await createBookingCheckout(lineItems, successUrl, cancelUrl, totalAmount, roomData.tax || 0, bookingId);
+        const checkout = await createBookingCheckout(lineItems, successUrl, cancelUrl, depositAmount, roomData.tax || 0, bookingId);
         
         if (checkout.url) {
             wixLocation.to(checkout.url);
@@ -122,5 +159,9 @@ async function processBooking() {
 
     } catch (err) {
         console.error("Booking Error:", err);
+        if ($w("#errorSuccessMessage")) {
+            $w("#errorSuccessMessage").text = "An error occurred during checkout. Please try again.";
+            $w("#errorSuccessMessage").show();
+        }
     }
 }

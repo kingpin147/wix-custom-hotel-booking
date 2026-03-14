@@ -1,5 +1,6 @@
 import wixLocation from 'wix-location';
 import wixData from 'wix-data';
+import { sendQuoteEmailWithContact } from 'backend/email.web';
 
 $w.onReady(async function () {
     // 1. Get the bookingId from the URL
@@ -20,10 +21,25 @@ $w.onReady(async function () {
                 bookingRecord.paymentStatus = "Paid";
                 await wixData.update("BookingSaleData", bookingRecord);
 
-                // Update UI to show success
+                // Update UI to show exact message
                 if ($w("#messageText")) {
-                    $w("#messageText").text = `Thank you! Your booking for ${bookingRecord.packageName} has been confirmed.`;
+                    $w("#messageText").text = `Thank you for booking your place at our Padel Paradise Retreat from *19th to 24th May 2026*. We’re delighted to welcome you.\n\nI’m pleased to confirm that we’ve received your *30% deposit. The **remaining balance is due by 7th April 2026*.\nWe will send you a *MONEI payment link for the final balance once the 48‑hour cooling‑off period has passed*.`;
                 }
+                
+                // Trigger email with contact
+                try {
+                    console.log("Triggering quote email for", bookingRecord.firstName);
+                    await sendQuoteEmailWithContact(
+                        bookingRecord.firstName,
+                        bookingRecord.lastName,
+                        bookingRecord.email,
+                        bookingRecord.guestNames || "None specified",
+                        bookingRecord.packageName
+                    );
+                } catch (emailErr) {
+                    console.error("Error sending quote email:", emailErr);
+                }
+
                 console.log("Booking updated to Paid:", bookingId);
             } else {
                 console.error("Booking record not found for ID:", bookingId);
