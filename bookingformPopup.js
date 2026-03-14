@@ -79,8 +79,8 @@ function calculatePrice() {
     }
 
     totalAmount = pricePerPerson * personsCount;
-    depositAmount = totalAmount * 0.3; // 30% deposit
-    remainingBalance = totalAmount * 0.7; // 70% remaining balance
+    depositAmount = 1000 * personsCount; // 1000 euros per person deposit
+    remainingBalance = totalAmount - depositAmount; // remaining balance
     
     // Optional: display total price on UI if there is a field like #totalDisplay
     // if ($w("#totalDisplay")) $w("#totalDisplay").text = `Total: €${totalAmount.toLocaleString()}`;
@@ -146,9 +146,9 @@ async function processBooking() {
         const cancelUrl = "https://www.padelparadiseretreats.com/";
         
         const lineItems = [{
-            name: `${roomData.packageName} (30% Deposit)`,
+            name: `${roomData.packageName} (Deposit)`,
             quantity: personsCount, // Number of persons
-            price: pricePerPerson * 0.3   // 30% of price per person
+            price: 1000   // 1000 euros deposit per person
         }];
 
         const checkout = await createBookingCheckout(lineItems, successUrl, cancelUrl, depositAmount, roomData.tax || 0, bookingId);

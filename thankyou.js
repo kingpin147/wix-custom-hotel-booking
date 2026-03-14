@@ -23,7 +23,7 @@ $w.onReady(async function () {
 
                 // Update UI to show exact message
                 if ($w("#messageText")) {
-                    $w("#messageText").text = `Thank you for booking your place at our Padel Paradise Retreat from *19th to 24th May 2026*. We’re delighted to welcome you.\n\nI’m pleased to confirm that we’ve received your *30% deposit. The **remaining balance is due by 7th April 2026*.\nWe will send you a *MONEI payment link for the final balance once the 48‑hour cooling‑off period has passed*.`;
+                    $w("#messageText").text = `Thank you for booking your place at our Padel Paradise Retreat from *19th to 24th May 2026*. We’re delighted to welcome you.\n\nI’m pleased to confirm that we’ve received your *deposit. The **remaining balance is due by 7th April 2026*.\nWe will send you a *MONEI payment link for the final balance once the 48‑hour cooling‑off period has passed*.`;
                 }
                 
                 // Trigger email with contact
