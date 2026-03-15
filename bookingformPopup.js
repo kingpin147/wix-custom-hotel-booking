@@ -20,15 +20,12 @@ $w.onReady(function () {
 });
 
 function setupUI() {
-    // Populate Number of Rooms (Occupancy)
-    $w("#rooms").text = `number of available rooms for occupancy = ${roomData.numberOfRooms}`;
-
     // Initialize Dropdown 'person'
     // Options: Solo (1), Pair (2), Group (3), Other
     $w("#person").options = [
-        { "label": "I am a solo guest", "value": "1" },
-        { "label": "I am booking as part of a pair (2 people)", "value": "2" },
-        { "label": "I am booking as part of a group (3+ people)", "value": "3" },
+        { "label": "I am booking for myself only (1,000€ deposit)", "value": "1" },
+        { "label": "I am booking for 2 people (2,000€ deposit)", "value": "2" },
+        { "label": "I am booking for 3 people (3,000€ deposit)", "value": "3" },
         { "label": "Other - Please Specify Below", "value": "other" }
     ];
 
@@ -100,6 +97,12 @@ async function processBooking() {
     if (!$w("#lName").value) missingFields.push("Last Name");
     if (!$w("#email").value) missingFields.push("Email");
     if (!$w("#dob").value) missingFields.push("Date of Birth");
+    if (!$w("#mobile").value) missingFields.push("Mobile Number");
+    if (!$w("#address").value) missingFields.push("Address");
+    
+    // Validate if the required checkbox is checked
+    if (!$w("#checkbox1").checked) missingFields.push("Terms and Conditions Agreement");
+    
     if (personsCount <= 0) missingFields.push("Number of Persons");
 
     if (missingFields.length > 0) {

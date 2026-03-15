@@ -14,8 +14,8 @@ This repository contains the custom Velo code for a hotel booking system integra
 
 1. **Selection**: User selects a room from the `bookingRepeater`.
 2. **Booking Form**: A lightbox opens where the user enters their details, selects the number of persons, and optionally provides `#guestNames` if booking for more than one person.
-3. **Calculation**: The system calculates the total price based on the `packagePrice` and number of persons. It then calculates a €1000 per person deposit amount and the remaining balance.
-4. **Checkout**: Clicking "Pay Now" creates a record in `BookingSaleData` (including `guestNames`, `depositAmount`, and `remainingBalance`) and redirects to Stripe to pay the deposit.
+3. **Calculation & Consent**: The system calculates the total price based on the `packagePrice` and number of persons. It then calculates a €1000 per person deposit amount and the remaining balance. The user must also agree to the Terms and Conditions via a required checkbox.
+4. **Checkout**: Clicking "Pay Now" ensures all mandatory fields (including mobile, address, and consent) are filled. It then creates a record in `BookingSaleData` (including `guestNames`, `depositAmount`, and `remainingBalance`) and redirects to Stripe to pay the deposit.
 5. **Confirmation**: After payment, the user is redirected to the `thankyou` page, which updates the record to "Paid", displays the customized confirmation message, and triggers an email using `email.web.js`.
 
 ## 🛠️ Setup Requirements
@@ -30,7 +30,7 @@ This repository contains the custom Velo code for a hotel booking system integra
 ### Element IDs
 Ensure the following IDs are correctly set in the Wix Editor:
 - **Repeater**: `#bookingRepeater`, `#bookNow` (button).
-- **Lightbox**: `#fName`, `#lName`, `#email`, `#dob` (input), `#mobile`, `#address`, `#person` (dropdown), `#otherPerson` (input), `#guestNames` (input/text area), `#rooms` (text), `#payNow` (button), `#errorSuccessMessage` (text).
+- **Lightbox**: `#fName`, `#lName`, `#email`, `#dob` (input), `#mobile`, `#address`, `#person` (dropdown), `#otherPerson` (input), `#guestNames` (input/text area), `#checkbox1` (required checkbox), `#payNow` (button), `#errorSuccessMessage` (text).
 - **Thank You Page**: `#messageText` (text).
 
 ## 📄 License
