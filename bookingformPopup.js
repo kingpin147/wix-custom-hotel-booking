@@ -93,23 +93,40 @@ function parsePrice(priceStr) {
 async function processBooking() {
     // Basic Validation
     let missingFields = [];
-    if (!$w("#fName").value) missingFields.push("First Name");
-    if (!$w("#lName").value) missingFields.push("Last Name");
-    if (!$w("#email").value) missingFields.push("Email");
-    if (!$w("#dob").value) missingFields.push("Date of Birth");
-    if (!$w("#mobile").value) missingFields.push("Mobile Number");
-    if (!$w("#address").value) missingFields.push("Address");
+    // Clear previous errors
+    const fields = ["#fName", "#lName", "#email", "#dob", "#mobile", "#address"];
+    fields.forEach(selector => $w(selector).style.borderColor = "");
+    $w("#checkbox1").style.color = "";
+
+    if (!$w("#fName").value) { missingFields.push("First Name"); $w("#fName").style.borderColor = "red"; }
+    if (!$w("#lName").value) { missingFields.push("Last Name"); $w("#lName").style.borderColor = "red"; }
+    if (!$w("#email").value) { missingFields.push("Email"); $w("#email").style.borderColor = "red"; }
+    if (!$w("#dob").value) { missingFields.push("Date of Birth"); $w("#dob").style.borderColor = "red"; }
+    if (!$w("#mobile").value) { missingFields.push("Mobile Number"); $w("#mobile").style.borderColor = "red"; }
+    if (!$w("#address").value) { missingFields.push("Address"); $w("#address").style.borderColor = "red"; }
     
     // Validate if the required checkbox is checked
-    if (!$w("#checkbox1").checked) missingFields.push("Terms and Conditions Agreement");
+    if (!$w("#checkbox1").checked) {
+        missingFields.push("Terms and Conditions Agreement");
+        // Checkboxes might not have borderColor easily, but we can try or use a label
+        $w("#checkbox1").style.color = "red"; 
+    }
     
-    if (personsCount <= 0) missingFields.push("Number of Persons");
+    if (personsCount <= 0) {
+        missingFields.push("Number of Persons");
+        $w("#person").style.borderColor = "red";
+        if ($w("#person").value === "other") {
+            $w("#otherPerson").style.borderColor = "red";
+        }
+    }
 
     if (missingFields.length > 0) {
         let errorMsg = "Please fill in all required fields: " + missingFields.join(", ");
         if ($w("#errorSuccessMessage")) {
             $w("#errorSuccessMessage").text = errorMsg;
             $w("#errorSuccessMessage").show();
+            // Try to scroll to the error message so the user sees it
+            $w("#errorSuccessMessage").scrollTo();
         }
         console.error(errorMsg);
         return;
@@ -146,7 +163,7 @@ async function processBooking() {
 
         // 2. Call Stripe Backend
         const successUrl = `${wixLocation.baseUrl}/thankyou?bookingId=${bookingId}`;
-        const cancelUrl = "https://www.padelparadiseretreats.com/";
+        const cancelUrl = "https://www.padelparadiseretreats.com/booking";
         
         const lineItems = [{
             name: `${roomData.packageName} (Deposit)`,

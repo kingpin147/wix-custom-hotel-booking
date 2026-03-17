@@ -40,6 +40,9 @@ export async function createBookingCheckout(lineItems, successUrl, cancelUrl, to
                 tax_rate_percentage: taxRate.toString()
             },
             customer_creation: 'always',
+            adaptive_pricing: {
+                enabled: false,
+            },
         });
 
         return {
